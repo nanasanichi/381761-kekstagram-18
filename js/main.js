@@ -1,6 +1,6 @@
 'use strict';
 
-var messages = [
+var COMMENTS = [
   'Всё отлично!',
   'В целом всё неплохо. Но не всё.',
   'Когда вы делаете фотографию, хорошо бы убирать палец из кадра. В конце концов это просто непрофессионально.',
@@ -8,46 +8,52 @@ var messages = [
   'Я поскользнулся на банановой кожуре и уронил фотоаппарат на кота и у меня получилась фотография лучше.',
   'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'
 ];
-var names = ['Иван', 'Хуан Себастьян', 'Мария', 'Кристоф', 'Виктор', 'Юлия', 'Люпита', 'Вашингтон'];
-var numberArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
-var commentCount = 25;
+var NAMES = ['Иван', 'Хуан Себастьян', 'Мария', 'Кристоф', 'Виктор', 'Юлия', 'Люпита', 'Вашингтон'];
+var PHOTOS_MAX = 25;
+var commentList = [];
+var photoUsers = [];
 
 var getRandomNumber = function (min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
+  return Math.floor(Math.random() * (max - min)) + min;
 };
+// возвращает случайное число для различных нужд в коде.
 
-var shuffleArray = function () {
-  var j;
-  var x;
-  var i;
-  for (i = numberArray.length - 1; i > 0; i--) {
-    j = Math.floor(Math.random() * (i + 1));
-    x = numberArray[i];
-    numberArray[i] = numberArray[j];
-    numberArray[j] = x;
+var generateComments = function () {
+  for (var i = 0; i < COMMENTS.length; i++) {
+    commentList[i] = COMMENTS[getRandomNumber(0, COMMENTS.length - 1)];
   }
-  return numberArray;
+  return commentList;
 };
+generateComments(); // возвращает список случайных комментариев.
 
-var uniqueRandomNumber = shuffleArray();
-
-var getRandomItems = function () {
-  var comment = [];
-  for (var i = 0; i < commentCount; i++) {
-    var imgUrl = 'photos/' + uniqueRandomNumber[i] + '.jpg';
-    var imageDescription = imgUrl.toString();
-    var randomLikes = getRandomNumber(15, 500);
-    var randomComment = messages[getRandomNumber(0, messages.length - 1)];
-    var randomName = names[getRandomNumber(0, names.length - 1)];
-    comment[i] = {
-      url: imgUrl,
-      description: imageDescription,
-      likes: randomLikes,
-      message: randomComment,
-      name: randomName
+var generatePhotoList = function () {
+  for (var i = 0; i < PHOTOS_MAX; i++) {
+    photoUsers[i] = {
+      url: 'photos/' + (i + 1) + '.jpg',
+      description: 'А для тех, кто не согласен, уже закуплен полицейский вертолетоносец Мистраль.',
+      likes: getRandomNumber(15, 200),
+      comments: commentList.length,
+      name: NAMES[getRandomNumber(0, NAMES.length - 1)]
     };
   }
-  return comment;
+  return photoUsers;
 };
 
-getRandomItems();
+generatePhotoList(); // возвращает список фотографий
+
+var userPictures = document.querySelector('.pictures');
+var template = document.querySelector('#picture').content.querySelector('.picture');
+var fragment = document.createDocumentFragment();
+
+for (var j = 0; j < photoUsers.length; j++) {
+  var pictureImg = document.querySelector('#picture').content.querySelector('.picture__img');
+  pictureImg.src = photoUsers[j].url;
+  var photoElement = template.cloneNode(true);
+
+  photoElement.querySelector('.picture__comments').textContent = photoUsers[j].comments;
+  photoElement.querySelector('.picture__likes').textContent = photoUsers[j].likes;
+
+  fragment.appendChild(photoElement);
+}
+
+userPictures.appendChild(fragment);
