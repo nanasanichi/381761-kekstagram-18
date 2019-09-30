@@ -10,50 +10,58 @@ var COMMENTS = [
 ];
 var NAMES = ['Иван', 'Хуан Себастьян', 'Мария', 'Кристоф', 'Виктор', 'Юлия', 'Люпита', 'Вашингтон'];
 var PHOTOS_MAX = 25;
-var commentList = [];
-var photoUsers = [];
 
-var getRandomNumber = function (min, max) {
-  return Math.floor(Math.random() * (max - min)) + min;
-};
 // возвращает случайное число для различных нужд в коде.
+var getRandomNumber = function (min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+};
 
+// возвращает список случайных комментариев.
 var generateComments = function () {
+  var commentList = [];
   for (var i = 0; i < COMMENTS.length; i++) {
     commentList[i] = COMMENTS[getRandomNumber(0, COMMENTS.length - 1)];
   }
   return commentList;
 };
-generateComments(); // возвращает список случайных комментариев.
 
+// возвращает список фотографий
 var generatePhotoList = function () {
+  var photoUsers = [];
   for (var i = 0; i < PHOTOS_MAX; i++) {
     photoUsers[i] = {
       url: 'photos/' + (i + 1) + '.jpg',
       description: 'А для тех, кто не согласен, уже закуплен полицейский вертолетоносец Мистраль.',
       likes: getRandomNumber(15, 200),
-      comments: commentList.length,
+      comments: generateComments(), // если прямо тут вызывать generateComments, то на сайте получается странная джигурда из комментариев.
       name: NAMES[getRandomNumber(0, NAMES.length - 1)]
     };
   }
   return photoUsers;
 };
 
-generatePhotoList(); // возвращает список фотографий
-
-var userPictures = document.querySelector('.pictures');
-var template = document.querySelector('#picture').content.querySelector('.picture');
-var fragment = document.createDocumentFragment();
-
-for (var j = 0; j < photoUsers.length; j++) {
-  var pictureImg = document.querySelector('#picture').content.querySelector('.picture__img');
-  pictureImg.src = photoUsers[j].url;
+// Создает один элемент в списке
+var getPhotoBlock = function (photo) {
+  var template = document.querySelector('#picture').content.querySelector('.picture');
   var photoElement = template.cloneNode(true);
+  photoElement.querySelector('.picture__comments').textContent = photo.comments;
+  photoElement.querySelector('.picture__likes').textContent = photo.likes;
+  photoElement.querySelector('.picture__img').src = photo.url;
 
-  photoElement.querySelector('.picture__comments').textContent = photoUsers[j].comments;
-  photoElement.querySelector('.picture__likes').textContent = photoUsers[j].likes;
+  return photoElement;
+};
 
-  fragment.appendChild(photoElement);
-}
+// Создает нужное количество элементов в списке
+var renderPhotos = function (photos) {
+  var userPictures = document.querySelector('.pictures');
+  var fragment = document.createDocumentFragment();
 
-userPictures.appendChild(fragment);
+  for (var i = 0; i < photos.length; i++) {
+    fragment.appendChild(getPhotoBlock(photos[i]));
+  }
+
+  userPictures.appendChild(fragment);
+};
+
+renderPhotos(generatePhotoList());
+
