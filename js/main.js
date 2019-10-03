@@ -44,7 +44,7 @@ var generatePhotoList = function () {
 var getPhotoBlock = function (photo) {
   var template = document.querySelector('#picture').content.querySelector('.picture');
   var photoElement = template.cloneNode(true);
-  photoElement.querySelector('.picture__comments').textContent = photo.comments;
+  photoElement.querySelector('.picture__comments').textContent = photo.comments.length;
   photoElement.querySelector('.picture__likes').textContent = photo.likes;
   photoElement.querySelector('.picture__img').src = photo.url;
 
